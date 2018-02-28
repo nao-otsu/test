@@ -17,6 +17,8 @@
 		C35E62321FD3C99800A1A77F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = C35E62301FD3C99800A1A77F /* LaunchScreen.storyboard */; };
 		C35E623D1FD3C99800A1A77F /* testTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C35E623C1FD3C99800A1A77F /* testTests.swift */; };
 		C35E62481FD3C99800A1A77F /* testUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C35E62471FD3C99800A1A77F /* testUITests.swift */; };
+		C3A1A72B202CD27100AFD359 /* SoundGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A1A72A202CD27000AFD359 /* SoundGenerator.swift */; };
+		C3A1A72D202F68F700AFD359 /* NewAudioIO.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A1A72C202F68F700AFD359 /* NewAudioIO.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -53,6 +55,8 @@
 		C35E62431FD3C99800A1A77F /* testUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = testUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		C35E62471FD3C99800A1A77F /* testUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = testUITests.swift; sourceTree = "<group>"; };
 		C35E62491FD3C99800A1A77F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		C3A1A72A202CD27000AFD359 /* SoundGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundGenerator.swift; sourceTree = "<group>"; };
+		C3A1A72C202F68F700AFD359 /* NewAudioIO.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewAudioIO.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -108,6 +112,8 @@
 				C35E62291FD3C99800A1A77F /* ViewController.swift */,
 				C3275AA51FF2459D00F59B66 /* AudioIO.swift */,
 				C3275AA41FF2459C00F59B66 /* Fft.swift */,
+				C3A1A72C202F68F700AFD359 /* NewAudioIO.swift */,
+				C3A1A72A202CD27000AFD359 /* SoundGenerator.swift */,
 				C35E622B1FD3C99800A1A77F /* Main.storyboard */,
 				C35E622E1FD3C99800A1A77F /* Assets.xcassets */,
 				C35E62301FD3C99800A1A77F /* LaunchScreen.storyboard */,
@@ -272,6 +278,8 @@
 				C35E622A1FD3C99800A1A77F /* ViewController.swift in Sources */,
 				C3275AA61FF2459D00F59B66 /* Fft.swift in Sources */,
 				C3275AA71FF2459D00F59B66 /* AudioIO.swift in Sources */,
+				C3A1A72D202F68F700AFD359 /* NewAudioIO.swift in Sources */,
+				C3A1A72B202CD27100AFD359 /* SoundGenerator.swift in Sources */,
 				C35E62261FD3C99800A1A77F /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

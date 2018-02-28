@@ -26,17 +26,42 @@ class ViewController: UIViewController, ARSCNViewDelegate {
     var flag: Bool = true
     //BGフラグ
     var bgFlag: Bool = true
+    var bgFlag0: Bool = true
     //測定フラグ
     var measureFlag:Bool = true
     
-    let numSamples: Int = 4096
+    let numSamples: Int = 2048
     
     let fileName:String = "fft.csv"
     
     let myBoundSize: CGSize = UIScreen.main.bounds.size
+    var button: UIButton!
     var playButton: UIButton!
     var bgButton: UIButton!
     var measureButton: UIButton!
+    var resultButton: UIButton!
+    
+    //新しく追加
+    let SAMPLE_RATE: Float = 44100.0
+    let AMPLITUDE: Float = 1.0
+    let NUM_OF_FREQUENCIES: Int = 256
+    let MAX_FREQUENCY: Float = 12920.0
+    let MIN_FREQUENCY: Float = 7429.0
+    let FFT_SIZE: Int = 2048
+    
+    var firstIndex: Int = 345
+    var lastIndex: Int = 600
+    
+    var soundGenerator: SoundGenerator!
+    var newAudioIO: NewAudioIO!
+    var bgAudioIO: NewAudioIO!
+    var newPlaybutton: UIButton!
+    var newBGMeasuerButton: UIButton!
+    
+    var bgData = [Float]()
+    var fftBgData = [Float]()
+    
+    
 
     @IBOutlet var sceneView: ARSCNView!
     
@@ -63,6 +88,31 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         // Set the scene to the view
         sceneView.scene = scene
+
+        newPlaybutton = UIButton(frame: CGRect(x: myBoundSize.width/8 + 5, y: myBoundSize.height - 300, width: myBoundSize.width/4 - 10, height: 50))
+        newPlaybutton.backgroundColor = UIColor(red: 1.0, green: 0.5, blue: 0.0, alpha: 0.8)
+        newPlaybutton.setTitleColor(UIColor.black, for: UIControlState.normal)
+        newPlaybutton.setTitle("再生", for: .normal)
+        newPlaybutton.addTarget(self, action: #selector(newPlayButton), for: .touchUpInside)
+        
+        newBGMeasuerButton = UIButton(frame: CGRect(x: myBoundSize.width/8 * 3 + 5, y: myBoundSize.height - 300, width: myBoundSize.width/4 - 10, height: 50))
+        newBGMeasuerButton.backgroundColor = UIColor(red: 1.0, green: 0.5, blue: 0.0, alpha: 0.8)
+        newBGMeasuerButton.setTitleColor(UIColor.black, for: UIControlState.normal)
+        newBGMeasuerButton.setTitle("BGPW", for: .normal)
+        newBGMeasuerButton.addTarget(self, action: #selector(getBGData), for: .touchUpInside)
+        
+        resultButton = UIButton(frame: CGRect(x: myBoundSize.width/8 * 5 + 5, y: myBoundSize.height - 300, width: myBoundSize.width/4 - 10, height: 50))
+        resultButton.backgroundColor = UIColor(red: 1.0, green: 0.5, blue: 0.0, alpha: 0.8)
+        resultButton.setTitleColor(UIColor.black, for: UIControlState.normal)
+        resultButton.setTitle("Result", for: .normal)
+        resultButton.addTarget(self, action: #selector(result), for: .touchUpInside)
+        
+        
+        button = UIButton(frame: CGRect(x: myBoundSize.width/8 + 5, y: myBoundSize.height - 200, width: myBoundSize.width/4 - 10, height: 50))
+        button.backgroundColor = UIColor(red: 1.0, green: 0.5, blue: 0.0, alpha: 0.8)
+        button.setTitleColor(UIColor.black, for: UIControlState.normal)
+        button.setTitle("BG", for: .normal)
+        button.addTarget(self, action: #selector(bgPlayButton), for: .touchUpInside)
     
         playButton = UIButton(frame: CGRect(x: myBoundSize.width/8 + 5, y: myBoundSize.height - 100, width: myBoundSize.width/4 - 10, height: 50))
         playButton.backgroundColor = UIColor(red: 1.0, green: 0.5, blue: 0.0, alpha: 0.8)
@@ -86,9 +136,13 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         measureButton.alpha = 0.1
         measureButton.addTarget(self, action: #selector(touchMeasureButton), for: .touchUpInside)
         
+        sceneView.addSubview(button)
         sceneView.addSubview(playButton)
         sceneView.addSubview(bgButton)
         sceneView.addSubview(measureButton)
+        sceneView.addSubview(newPlaybutton)
+        sceneView.addSubview(newBGMeasuerButton)
+        sceneView.addSubview(resultButton)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -97,7 +151,8 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         // Create a session configuration
         let configuration = ARWorldTrackingConfiguration()
         fft = Fft()
-        audioIO = AudioIO(numsamples: numSamples)
+        //audioIO = AudioIO(numsamples: numSamples)
+        soundGenerator = SoundGenerator()
 
         // Run the view's session
         sceneView.session.run(configuration)
@@ -110,11 +165,20 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         sceneView.session.pause()
     }
     
+    @objc func bgPlayButton(){
+        audioIO.createBGData(fft: fft)
+        button.isEnabled = false
+        button.alpha = 0.1
+        audioIO.bgFlag0 = true
+        bgTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.BGFlagcheck0), userInfo: nil, repeats: true)
+    }
+    
     @objc func touchPlayButton(){
         if playButton.currentTitle == "再生" {
             playButton.setTitle("停止", for: UIControlState.normal)
             bgButton.isEnabled = true
             bgButton.alpha = 0.8
+            audioIO.bgFlag = true
             //measureButton.isEnabled = true
             
             
@@ -157,6 +221,37 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             measureTimer = Timer.scheduledTimer(timeInterval: 1.0, target: self, selector: #selector(self.MeasureFlagcheck), userInfo: nil, repeats: true)
         }
     }
+    
+    
+    /////////////////////////////////////////////////////////////////
+    
+    @objc func newPlayButton(){
+        let sinBuffer = soundGenerator.getSendWave()
+        newAudioIO = NewAudioIO()
+        newAudioIO.play(buffer:sinBuffer)
+    }
+    
+    
+    @objc func getBGData(){
+        bgAudioIO = NewAudioIO()
+        bgAudioIO.microphoneBool()
+        bgAudioIO.noObjectFalg = true
+    }
+    
+    @objc func result(){
+        bgAudioIO.objectFlag = true
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
     @objc func updateTime(){
 //        print(sceneView.session.currentFrame?.camera.transform.columns.3.x)
@@ -263,6 +358,18 @@ class ViewController: UIViewController, ARSCNViewDelegate {
             measureButton.isEnabled = true
             measureButton.alpha = 0.8
             bgFlag = true
+            
+        }
+    }
+    
+    @objc func BGFlagcheck0(){
+        if !audioIO.bgFlag0 {
+            button.isEnabled = true
+            button.alpha = 0.8
+            bgFlag0 = true
+            bgTimer.invalidate()
+            audioIO.stop()
+            
         }
     }
     
